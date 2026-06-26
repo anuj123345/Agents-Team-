@@ -1,0 +1,15 @@
+# Environment variables & secrets — never commit
+.env
+.env.*
+*.env
+config.js
+
+# Dependencies
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local scripts
+push_to_github.bat
