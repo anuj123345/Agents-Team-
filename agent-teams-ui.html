@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agent Teams UI</title>
+<title>Agent Teams — AI Marketing Intelligence</title>
 <script src="config.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 <style>
@@ -534,7 +534,7 @@ body.light .think-body{color:rgba(139,92,246,.8);}
     </svg>
     <div class="logo-wordmark">
       <span class="logo-title">Agent Teams</span>
-      <span class="logo-sub">Powered by NIM</span>
+      <span class="logo-sub">Marketing Intelligence</span>
     </div>
   </div>
 
@@ -594,9 +594,18 @@ body.light .think-body{color:rgba(139,92,246,.8);}
     <span class="think-label-text">Thinking</span>
   </label>
 
+  <div class="h-div"></div>
+
+  <!-- Agency pill -->
+  <div class="agency-pill" id="agencyPill" onclick="openAgencySettings()" title="Agency settings">
+    <span class="ap-dot"></span>
+    <span id="agencyPillLabel">My Agency</span>
+  </div>
+
   <div class="h-spacer"></div>
 
   <!-- Icon buttons -->
+  <button class="icon-btn" data-tooltip="Client view" onclick="openClientMode()" title="Open client presentation view">📊</button>
   <button class="icon-btn" id="themeBtn" data-tooltip="Toggle theme" onclick="toggleTheme()">🌙</button>
   <button class="icon-btn" id="notifBtn" data-tooltip="Notifications" onclick="toggleNotif()">🔔</button>
   <button class="icon-btn" data-tooltip="Session history" onclick="openModal('histModal')">🕓</button>
@@ -897,40 +906,122 @@ body.light .think-body{color:rgba(139,92,246,.8);}
   .out-section{opacity:1!important;transform:none!important;pointer-events:auto!important;}
   .out-actions,.ab-banner{display:none!important;}
 }
+
+/* ═══════════════════════════════════════════════════
+   AGENCY SETTINGS PILL
+═══════════════════════════════════════════════════ */
+.agency-pill{display:flex;align-items:center;gap:7px;height:36px;padding:0 14px;background:rgba(255,255,255,.07);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.13);border-radius:22px;cursor:pointer;font-size:12.5px;color:var(--tx2);transition:all .2s;user-select:none;white-space:nowrap;}
+.agency-pill:hover{border-color:rgba(129,140,248,.4);color:var(--ind);background:rgba(129,140,248,.08);}
+.ap-dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,var(--ind),var(--vio));box-shadow:0 0 8px rgba(129,140,248,.5);flex-shrink:0;}
+
+/* ═══════════════════════════════════════════════════
+   AGENCY MODAL FORM
+═══════════════════════════════════════════════════ */
+.agency-form{display:flex;flex-direction:column;gap:14px;}
+.af-group{display:flex;flex-direction:column;gap:5px;}
+.af-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--tx3);}
+.af-input{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px 14px;color:var(--tx);font-size:14px;font-family:inherit;outline:none;transition:border-color .2s,box-shadow .2s;}
+.af-input:focus{border-color:rgba(129,140,248,.5);box-shadow:0 0 0 3px rgba(129,140,248,.12);}
+.af-input::placeholder{color:var(--tx3);}
+.af-save{margin-top:6px;height:42px;width:100%;background:linear-gradient(135deg,var(--ind),var(--vio));border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;}
+.af-save:hover{box-shadow:0 4px 20px rgba(129,140,248,.4);transform:translateY(-1px);}
+
+/* ═══════════════════════════════════════════════════
+   CLIENT MODE OVERLAY
+═══════════════════════════════════════════════════ */
+.client-overlay{position:fixed;inset:0;z-index:500;background:var(--bg);overflow-y:auto;display:none;}
+.client-overlay.on{display:block;animation:coFade .25s ease;}
+@keyframes coFade{from{opacity:0}to{opacity:1}}
+.co-header{padding:20px 48px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(4,4,18,.75);backdrop-filter:blur(32px);position:sticky;top:0;z-index:10;}
+.co-brand{display:flex;flex-direction:column;gap:3px;}
+.co-agency-name{font-size:20px;font-weight:800;background:linear-gradient(115deg,#f0f0fa,#c4b5fd 55%,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.4px;}
+.co-meta{font-size:12.5px;color:var(--tx3);}
+.co-header-right{display:flex;gap:10px;align-items:center;}
+.co-back{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);cursor:pointer;font-size:13px;color:var(--tx2);transition:all .18s;font-family:inherit;}
+.co-back:hover{border-color:rgba(255,255,255,.22);color:var(--tx);background:rgba(255,255,255,.09);}
+.co-pdf-btn{display:flex;align-items:center;gap:6px;padding:8px 18px;border-radius:8px;background:linear-gradient(135deg,var(--ind),var(--vio));color:#fff;cursor:pointer;font-size:13px;font-weight:600;border:none;transition:all .2s;font-family:inherit;}
+.co-pdf-btn:hover{box-shadow:0 4px 20px rgba(129,140,248,.4);transform:translateY(-1px);}
+.co-body{max-width:880px;margin:0 auto;padding:44px 48px;display:flex;flex-direction:column;gap:24px;}
+.co-mission-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:20px 24px;}
+.co-mission-label{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--tx3);margin-bottom:8px;}
+.co-mission-text{font-size:15px;color:var(--tx);line-height:1.65;}
+.co-agent-section{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:14px;overflow:hidden;}
+.co-agent-head{display:flex;align-items:center;gap:10px;padding:14px 22px;border-bottom:1px solid rgba(255,255,255,.07);}
+.co-agent-emoji{font-size:18px;}
+.co-agent-name{font-size:14px;font-weight:700;}
+.co-agent-role{font-size:12px;color:var(--tx3);margin-left:auto;}
+.co-agent-body{padding:20px 24px;font-size:14px;color:var(--tx2);line-height:1.8;}
+.co-agent-body h1,.co-agent-body h2,.co-agent-body h3{color:var(--tx);margin:14px 0 7px;font-size:15px;}
+.co-agent-body ul,.co-agent-body ol{padding-left:20px;margin:6px 0;}
+.co-agent-body li{margin:4px 0;}
+.co-agent-body strong{color:var(--tx);font-weight:600;}
+.co-agent-body p{margin:6px 0;}
+.co-final-section{background:rgba(129,140,248,.05);border:1px solid rgba(129,140,248,.2);border-radius:14px;overflow:hidden;}
+.co-final-head{display:flex;align-items:center;gap:10px;padding:14px 22px;border-bottom:1px solid rgba(129,140,248,.12);background:rgba(129,140,248,.07);}
+.co-final-title{font-size:14px;font-weight:700;color:var(--ind);}
+.co-empty{text-align:center;padding:80px 24px;color:var(--tx3);font-size:14px;}
+
+/* ═══════════════════════════════════════════════════
+   ONBOARDING WIZARD
+═══════════════════════════════════════════════════ */
+.ob-overlay{position:fixed;inset:0;z-index:600;background:rgba(4,4,18,.88);backdrop-filter:blur(20px);display:none;align-items:center;justify-content:center;padding:20px;}
+.ob-overlay.on{display:flex;animation:coFade .3s ease;}
+.ob-card{background:rgba(10,10,28,.95);border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:40px;width:100%;max-width:500px;box-shadow:0 32px 100px rgba(0,0,0,.65);}
+.ob-progress{display:flex;gap:6px;margin-bottom:32px;}
+.ob-pip{height:3px;border-radius:2px;flex:1;background:rgba(255,255,255,.1);transition:background .35s;}
+.ob-pip.done{background:var(--ind);}
+.ob-pip.active{background:linear-gradient(90deg,var(--ind),var(--vio));}
+.ob-title{font-size:22px;font-weight:800;letter-spacing:-.5px;margin-bottom:8px;line-height:1.2;}
+.ob-sub{font-size:14px;color:var(--tx2);line-height:1.65;margin-bottom:24px;}
+.ob-content{display:flex;flex-direction:column;gap:12px;margin-bottom:4px;}
+.ob-next{width:100%;height:44px;background:linear-gradient(135deg,var(--ind),var(--vio));border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:18px;font-family:inherit;}
+.ob-next:hover{box-shadow:0 4px 20px rgba(129,140,248,.4);transform:translateY(-1px);}
+.ob-skip{display:block;text-align:center;margin-top:10px;font-size:12px;color:var(--tx3);cursor:pointer;transition:color .2s;background:none;border:none;font-family:inherit;width:100%;}
+.ob-skip:hover{color:var(--tx2);}
+.ob-tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ob-tpl{padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;text-align:left;transition:all .18s;font-family:inherit;width:100%;}
+.ob-tpl:hover{border-color:rgba(129,140,248,.35);background:rgba(129,140,248,.07);}
+.ob-tpl.sel{border-color:rgba(129,140,248,.5);background:rgba(129,140,248,.12);box-shadow:0 0 12px rgba(129,140,248,.15);}
+.ob-tpl-em{font-size:22px;display:block;margin-bottom:6px;}
+.ob-tpl-name{font-size:12.5px;font-weight:700;color:var(--tx);}
+.ob-tpl-desc{font-size:11px;color:var(--tx3);margin-top:2px;line-height:1.4;}
 </style>
 
 <script>
 // ══════════════════════════════════════════════════════════════════
 //  CONSTANTS & DEFAULTS
 // ══════════════════════════════════════════════════════════════════
+// Schema version — bump this to reset saved agents when default agents change significantly
+const AGENTS_SCHEMA_VERSION = '3.0';
+
 const DEFAULT_AGENTS = [
-  {id:'researcher',emoji:'🔍',name:'Researcher',role:'Gathers facts & context',enabled:true,model:'',temp:0.7,timeout:90,
-   system:`You are a Research Agent. Your job is to gather and organize all relevant facts about the given topic.\n\nGuidelines:\n- Extract key facts, statistics, dates, names, and data points\n- Organize findings into clear sections with markdown headers (## Section Name)\n- Distinguish between confirmed facts and uncertain claims\n- Note the source of information when available from provided context\n- Use bullet points under each section\n- End with a "## Key Takeaways" section listing the 3–5 most important findings\n\nBe thorough but do not editorialize — stick to facts. Format your entire response in clean markdown.`},
-  {id:'analyst',emoji:'🧠',name:'Analyst',role:'Identifies patterns & insights',enabled:true,model:'',temp:0.7,timeout:90,
-   system:`You are an Analysis Agent. You receive research findings and your job is to extract deep meaning from them.\n\nGuidelines:\n- Identify the most significant patterns, trends, and relationships\n- Assess risks, trade-offs, strengths, and weaknesses\n- Apply relevant frameworks (SWOT, competitive analysis, etc.) where they add value\n- Flag gaps or inconsistencies in the research\n- Be direct — state conclusions clearly with supporting reasoning\n- Use markdown headers (## ) and bullet points for structure\n\nThink critically. Your job is interpretation and insight, not summary. Format in clean markdown.`},
-  {id:'strategist',emoji:'🎯',name:'Strategist',role:'Recommends actions',enabled:true,model:'',temp:0.8,timeout:90,
-   system:`You are a Strategy Agent. You receive research and analysis and recommend a clear course of action.\n\nGuidelines:\n- Lead with your top 3–5 specific, actionable recommendations as a numbered list\n- Prioritize by impact (highest leverage first)\n- For each recommendation: **What** to do → **Why** it matters → **How** to execute\n- Cover both short-term (0–3 months) and long-term (6–18 months) horizons\n- Include measurable success metrics for each recommendation\n- Acknowledge trade-offs honestly\n\nBe decisive and specific. No vague advice. Format your entire response in clean markdown.`},
-  {id:'writer',emoji:'✍️',name:'Writer',role:'Crafts the final output',enabled:true,model:'',temp:0.85,timeout:90,
-   system:`You are a Writer Agent. You receive the full work of your team and produce the definitive final document.\n\nGuidelines:\n- Start with a compelling **Executive Summary** (3–5 sentences, bold key phrases)\n- Synthesize all agent insights — do not copy/paste, find the narrative thread\n- Use clear ## section headers with logical flow\n- Write for a smart reader who is pressed for time — be concise and compelling\n- Bold the single most important point in each section\n- End with a **## Bottom Line** section: one paragraph, the single most important takeaway\n\nThis is the document a decision-maker will read. Make it count. Use clean, professional markdown.`},
-  {id:'critic',emoji:'🔎',name:'Critic',role:'Reviews & stress-tests',enabled:false,model:'',temp:0.7,timeout:90,
-   system:`You are a Critical Review Agent. You stress-test the team's output.\n\nGuidelines:\n- Identify logical gaps, weak assumptions, or missing evidence\n- Flag claims that are overstated or lack support\n- Note what was overlooked or underweighted\n- Check whether recommendations follow logically from the analysis\n- Be constructive — for each weakness, suggest how to address it\n\nBe rigorous but fair. Format your review in clean markdown with ## sections.`},
-  {id:'devil',emoji:'😈',name:"Devil's Advocate",role:'Challenges assumptions',enabled:false,model:'',temp:0.9,timeout:90,
-   system:`You are a Devil's Advocate. Your job is to challenge the team's conclusions.\n\nGuidelines:\n- Steelman the opposing view — what would a smart, well-informed skeptic argue?\n- Identify and challenge each key assumption\n- Surface worst-case scenarios and second-order consequences\n- Propose alternative interpretations or strategies not considered\n- Point out what the team may be motivated to ignore\n\nBe provocative but logical. You are not being contrarian — you are finding what everyone else missed. Format in clean markdown.`},
+  {id:'researcher',emoji:'📊',name:'Market Researcher',role:'Maps market & competition',enabled:true,model:'',temp:0.7,timeout:90,
+   system:`You are a Market Research Agent specializing in marketing intelligence for agency client work.\n\nYour job is to gather comprehensive market data to inform campaign strategy.\n\nGuidelines:\n- Map the competitive landscape: identify 3-5 key competitors with their positioning, messaging, and apparent weaknesses\n- Identify market trends and growth drivers most relevant to this brief\n- Estimate market size, key segments, and growth rate if inferable from context\n- Note consumer behavior shifts and cultural moments that create opportunity\n- Flag emerging threats or disruptive forces in the category\n- Use ## headers and bullet points throughout\n- End with ## Market Opportunity Summary: the 3 biggest opportunities this brand could own\n\nBe specific and data-grounded. If exact data is unavailable, note what would be needed and why it matters. Format in clean markdown.`},
+  {id:'analyst',emoji:'👥',name:'Audience Analyst',role:'Builds personas & buying journey',enabled:true,model:'',temp:0.7,timeout:90,
+   system:`You are an Audience Intelligence Agent. You translate market context into deep, actionable audience understanding.\n\nGuidelines:\n- Define 2-3 primary customer segments with full persona detail (demographics, psychographics, behaviors, media habits)\n- For each segment: articulate their core pain points, motivations, buying triggers, and what they're currently using instead\n- Map the customer journey from awareness through purchase for the primary segment\n- Identify the emotional jobs-to-be-done — not just functional needs\n- Flag any underserved or high-potential audience segments the brand may be ignoring\n- Use ## headers and structured bullet lists. Include a persona "snapshot" card for each segment\n\nThink like a cultural anthropologist, not a market researcher. Motivations matter more than demographics. Format in clean markdown.`},
+  {id:'strategist',emoji:'🎯',name:'Brand Strategist',role:'Develops positioning & messaging',enabled:true,model:'',temp:0.8,timeout:90,
+   system:`You are a Brand Strategy Agent. You build the strategic positioning that drives all marketing decisions.\n\nGuidelines:\n- Write a clear, one-sentence brand positioning statement (format: "[Brand] is the [category] for [audience] who [insight], because [reason to believe]")\n- Define the unique value proposition vs. the top 2-3 competitors\n- Develop the brand messaging hierarchy: Core Message → 3 Key Pillars → Proof points per pillar\n- Define brand personality: 5 adjectives that describe the tone, plus 5 to avoid\n- Map the competitive whitespace — where is there room to own a distinctive position?\n- Propose 1-2 strategic bets for differentiation with rationale\n- Use ## headers. Be specific — no generic strategy language or templates with blanks\n\nBe decisive. Make specific recommendations with clear reasoning. Format in clean markdown.`},
+  {id:'writer',emoji:'✍️',name:'Copywriter',role:'Writes headlines, copy & campaign concepts',enabled:true,model:'',temp:0.85,timeout:90,
+   system:`You are a Senior Copywriter Agent. You translate brand strategy into compelling, channel-ready copy.\n\nGuidelines:\n- Write a brand tagline: provide 3 options, explain the strategic thinking behind each\n- Write 3 headline options for the primary campaign (different angles/tones)\n- Write 2-3 CTAs appropriate for different funnel stages (awareness, consideration, conversion)\n- Write a key message for each of the brand's 3 content pillars (2-3 punchy sentences each)\n- Write sample social copy: 2 Instagram captions (one aspirational, one functional) and 2 LinkedIn posts\n- Write an email subject line + preview text for one campaign\n\nDeliver real, usable copy — not briefs about copy. Show, don't tell. Format in clean markdown with ## sections per deliverable type.`},
+  {id:'critic',emoji:'🔍',name:'Campaign Critic',role:'Stress-tests strategy & finds gaps',enabled:false,model:'',temp:0.7,timeout:90,
+   system:`You are a Campaign Review Agent. Your job is to stress-test the marketing strategy before it goes live.\n\nGuidelines:\n- Identify the 3-5 biggest strategic risks in the plan as presented\n- Flag every assumption that has not been tested or validated\n- Point out how the competition is likely to respond if this campaign succeeds\n- Check whether messaging is genuinely differentiated or sounds like every other brand in the category\n- Identify gaps: what important question does this strategy not answer?\n- For each issue you raise, propose a specific fix — not just the problem\n\nBe constructive but ruthless. A strategy that fails in market is worse than one that takes longer to refine. Format in clean markdown.`},
+  {id:'devil',emoji:'📝',name:'Content Strategist',role:'Plans content pillars & calendar',enabled:true,model:'',temp:0.8,timeout:90,
+   system:`You are a Content Strategy Agent. You translate brand strategy into a content execution plan that a marketing team can actually run.\n\nGuidelines:\n- Recommend 3-4 core content pillars that map directly to the brand messaging strategy\n- Map content types to funnel stages: Awareness (reach/entertain) → Consideration (educate/compare) → Conversion (prove/reassure)\n- Recommend channel mix with clear rationale: which channels for which audience segments, and why those over alternatives\n- Propose a 90-day content calendar structure: what content types, what cadence, on which channels\n- Suggest 6-10 specific content ideas with working titles, formats, and channels\n- Define 3-5 KPIs with realistic benchmark targets\n\nBe specific. Name real formats, real platforms, real KPI numbers. No generic strategy language. Format in clean markdown.`},
 ];
 
 const TEMPLATES = [
-  {id:'research',name:'Research Team',emoji:'🔬',desc:'Deep-dive research with analyst and synthesis',
-   agents:['researcher','analyst','writer']},
-  {id:'strategy',name:'Strategy Council',emoji:'🏛️',desc:'Full strategy pipeline with devil\'s advocate',
-   agents:['researcher','analyst','strategist','devil','writer']},
-  {id:'review',name:'Critical Review',emoji:'🔍',desc:'Thorough review with critic and counter-arguments',
-   agents:['researcher','analyst','critic','devil']},
-  {id:'content',name:'Content Studio',emoji:'✍️',desc:'Research-backed content creation',
-   agents:['researcher','strategist','writer']},
-  {id:'risk',name:'Risk Assessment',emoji:'⚠️',desc:'Risk-focused analysis with devil\'s advocate',
-   agents:['researcher','analyst','devil','critic']},
-  {id:'full',name:'Full Team',emoji:'🚀',desc:'All six agents for maximum thoroughness',
-   agents:['researcher','analyst','strategist','critic','devil','writer']},
+  {id:'launch',name:'Product Launch',emoji:'🚀',desc:'Market research → audience profiles → brand positioning → campaign copy',
+   agents:['researcher','analyst','strategist','writer']},
+  {id:'competitor',name:'Competitor Analysis',emoji:'🔬',desc:'Deep competitive intelligence, positioning gaps, and counter-strategy',
+   agents:['researcher','analyst','strategist','critic']},
+  {id:'content',name:'Content Strategy',emoji:'📝',desc:'90-day content plan with channel mix, pillars, and copy examples',
+   agents:['researcher','analyst','devil','writer']},
+  {id:'brand',name:'Brand Positioning',emoji:'🎯',desc:'Full brand strategy from research through messaging and copy',
+   agents:['researcher','analyst','strategist','writer','critic']},
+  {id:'campaign',name:'Campaign Brief',emoji:'📋',desc:'Audience-driven campaign with targeting, strategy, and ready-to-use copy',
+   agents:['analyst','strategist','devil','writer']},
+  {id:'full',name:'Full Agency Pack',emoji:'💼',desc:'All six agents for a comprehensive, client-ready strategy deliverable',
+   agents:['researcher','analyst','strategist','devil','writer','critic']},
 ];
 
 // ══════════════════════════════════════════════════════════════════
@@ -969,8 +1060,19 @@ const APP = {
 //  STORAGE
 // ══════════════════════════════════════════════════════════════════
 const Store = {
-  agents:()=>{ try{ const a=JSON.parse(localStorage.getItem('agents')); return a&&a.length?a:DEFAULT_AGENTS; }catch{ return DEFAULT_AGENTS; }},
-  saveAgents:(a)=>localStorage.setItem('agents',JSON.stringify(a)),
+  agents:()=>{
+    try{
+      // Reset saved agents if schema version changed (e.g. marketing edition upgrade)
+      if(localStorage.getItem('agentsVersion')!==AGENTS_SCHEMA_VERSION){
+        localStorage.removeItem('agents');
+        localStorage.setItem('agentsVersion',AGENTS_SCHEMA_VERSION);
+        return DEFAULT_AGENTS;
+      }
+      const a=JSON.parse(localStorage.getItem('agents'));
+      return a&&a.length?a:DEFAULT_AGENTS;
+    }catch{ return DEFAULT_AGENTS; }
+  },
+  saveAgents:(a)=>{ localStorage.setItem('agentsVersion',AGENTS_SCHEMA_VERSION); localStorage.setItem('agents',JSON.stringify(a)); },
   sessions:()=>{ try{ return JSON.parse(localStorage.getItem('sessions'))||[]; }catch{ return []; }},
   saveSession:(s)=>{ const arr=Store.sessions(); arr.unshift(s); if(arr.length>60)arr.pop(); localStorage.setItem('sessions',JSON.stringify(arr)); },
   prompts:()=>{ try{ return JSON.parse(localStorage.getItem('prompts'))||[]; }catch{ return []; }},
@@ -1039,6 +1141,9 @@ function init(){
 
   // AB banner always visible after first run
   document.getElementById('abBanner').classList.add('on');
+
+  // Apply agency name to pill
+  updateAgencyPill();
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -2492,9 +2597,286 @@ document.addEventListener('keydown',e=>{
 });
 
 // ══════════════════════════════════════════════════════════════════
+//  AGENCY SETTINGS
+// ══════════════════════════════════════════════════════════════════
+const Agency = {
+  get:()=>{ try{ return JSON.parse(localStorage.getItem('agencySettings'))||{name:'My Agency',client:'',tagline:''}; }catch{ return {name:'My Agency',client:'',tagline:''}; }},
+  save:(s)=>localStorage.setItem('agencySettings',JSON.stringify(s)),
+};
+
+function updateAgencyPill(){
+  const ag = Agency.get();
+  const el = document.getElementById('agencyPillLabel');
+  if(el) el.textContent = ag.name || 'My Agency';
+}
+
+function openAgencySettings(){
+  const ag = Agency.get();
+  document.getElementById('agNameInput').value = ag.name !== 'My Agency' ? ag.name : '';
+  document.getElementById('agClientInput').value = ag.client || '';
+  document.getElementById('agTaglineInput').value = ag.tagline || '';
+  openModal('agencyModal');
+}
+
+function saveAgencySettings(){
+  const ag = {
+    name: document.getElementById('agNameInput').value.trim() || 'My Agency',
+    client: document.getElementById('agClientInput').value.trim(),
+    tagline: document.getElementById('agTaglineInput').value.trim(),
+  };
+  Agency.save(ag);
+  updateAgencyPill();
+  closeModal('agencyModal');
+  toast('Agency settings saved ✓');
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  CLIENT MODE
+// ══════════════════════════════════════════════════════════════════
+function openClientMode(){
+  const ag = Agency.get();
+  const mission = (document.getElementById('mission')?.value||'').trim();
+  const dateStr = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+
+  document.getElementById('coAgencyName').textContent = ag.name || 'My Agency';
+  const clientLabel = ag.client ? `Prepared for ${ag.client}` : 'Client Deliverable';
+  document.getElementById('coMeta').textContent = `${clientLabel} · ${dateStr}`;
+  document.getElementById('coMissionText').textContent = mission || 'No brief entered.';
+
+  const body = document.getElementById('coAgentSections');
+  body.innerHTML = '';
+  let hasContent = false;
+
+  (APP.enabled||[]).forEach(agent => {
+    const result = APP.results[agent.id];
+    if(!result || result.startsWith('[Error:')) return;
+    hasContent = true;
+    const sec = document.createElement('div');
+    sec.className = 'co-agent-section';
+    sec.innerHTML = `
+      <div class="co-agent-head">
+        <span class="co-agent-emoji">${agent.emoji}</span>
+        <span class="co-agent-name">${agent.name}</span>
+        <span class="co-agent-role">${agent.role}</span>
+      </div>
+      <div class="co-agent-body">${marked.parse(result)}</div>
+    `;
+    body.appendChild(sec);
+  });
+
+  // Final synthesized output
+  const finalHtml = document.getElementById('outBody')?.innerHTML?.trim();
+  if(finalHtml){
+    const finalSec = document.createElement('div');
+    finalSec.className = 'co-final-section';
+    finalSec.innerHTML = `
+      <div class="co-agent-head co-final-head">
+        <span class="co-agent-emoji">📋</span>
+        <span class="co-final-title">Synthesized Report</span>
+      </div>
+      <div class="co-agent-body">${finalHtml}</div>
+    `;
+    body.appendChild(finalSec);
+    hasContent = true;
+  }
+
+  if(!hasContent){
+    body.innerHTML = '<div class="co-empty">Run your agent team first, then open Client View to see the presentation-ready deliverable.</div>';
+  }
+
+  document.getElementById('clientOverlay').classList.add('on');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeClientMode(){
+  document.getElementById('clientOverlay').classList.remove('on');
+  document.body.style.overflow = '';
+}
+
+function clientPdf(){
+  // Close client mode, run export, reopen
+  closeClientMode();
+  setTimeout(()=>{ exportPdf(); setTimeout(()=>openClientMode(), 400); }, 250);
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  ONBOARDING
+// ══════════════════════════════════════════════════════════════════
+let _obStep = 0;
+let _obSelectedTpl = null;
+
+const OB_STEPS = [
+  { title:'Welcome to Agent Teams 👋',
+    sub:'Your AI-powered marketing intelligence platform. Six specialized agents research, strategize, and write — delivering client-ready strategy in minutes.',
+    action:'Get started →', content:null },
+  { title:'Set up your agency',
+    sub:'Enter your agency name. It will appear on client reports and the presentation view.',
+    action:'Next →', content:'agency' },
+  { title:'Connect your API key',
+    sub:'Add your NVIDIA NIM API key to power the AI agents. It\'s stored locally in your browser and never sent to any server.',
+    action:'Next →', content:'apikey' },
+  { title:'Pick your first template',
+    sub:'Choose a marketing use case to start with. You can customize or switch templates at any time.',
+    action:'Let\'s go →', content:'templates' },
+];
+
+function initOnboarding(){
+  if(localStorage.getItem('onboardingDone')) return;
+  _obStep = 0;
+  renderObStep();
+  document.getElementById('obOverlay').classList.add('on');
+}
+
+function renderObStep(){
+  const step = OB_STEPS[_obStep];
+  // Progress pips
+  document.getElementById('obProgress').innerHTML = OB_STEPS.map((_,i)=>
+    `<div class="ob-pip ${i<_obStep?'done':i===_obStep?'active':''}"></div>`
+  ).join('');
+  document.getElementById('obTitle').textContent = step.title;
+  document.getElementById('obSub').textContent = step.sub;
+  document.getElementById('obNextBtn').textContent = step.action;
+
+  const content = document.getElementById('obContent');
+  content.innerHTML = '';
+
+  if(step.content === 'agency'){
+    const ag = Agency.get();
+    content.innerHTML = `
+      <div class="af-group">
+        <label class="af-label">Agency name</label>
+        <input class="af-input" id="obAgName" placeholder="e.g. Apex Creative" value="${ag.name!=='My Agency'?ag.name:''}">
+      </div>
+      <div class="af-group">
+        <label class="af-label">Default client name <span style="font-weight:400;text-transform:none">(optional)</span></label>
+        <input class="af-input" id="obClientName" placeholder="e.g. Athena Sportswear" value="${ag.client||''}">
+      </div>
+    `;
+  } else if(step.content === 'apikey'){
+    const currentKey = document.getElementById('apiKey')?.value || '';
+    content.innerHTML = `
+      <div class="af-group">
+        <label class="af-label">NVIDIA NIM API key</label>
+        <input class="af-input" id="obApiKey" type="password" placeholder="nvapi-..." value="${currentKey}">
+        <a href="https://build.nvidia.com" target="_blank" style="font-size:12px;color:var(--ind);margin-top:5px;display:inline-block">→ Get a free API key at build.nvidia.com</a>
+      </div>
+    `;
+  } else if(step.content === 'templates'){
+    content.innerHTML = `<div class="ob-tpl-grid">${TEMPLATES.slice(0,4).map(t=>`
+      <button class="ob-tpl${_obSelectedTpl===t.id?' sel':''}" onclick="selectObTpl('${t.id}',this)">
+        <span class="ob-tpl-em">${t.emoji}</span>
+        <div class="ob-tpl-name">${t.name}</div>
+        <div class="ob-tpl-desc">${t.desc.split(' — ')[0]||t.desc}</div>
+      </button>
+    `).join('')}</div>`;
+  }
+}
+
+function selectObTpl(id, el){
+  document.querySelectorAll('.ob-tpl').forEach(t=>t.classList.remove('sel'));
+  el.classList.add('sel');
+  _obSelectedTpl = id;
+}
+
+function nextObStep(){
+  const step = OB_STEPS[_obStep];
+  // Persist step data
+  if(step.content === 'agency'){
+    const name = document.getElementById('obAgName')?.value.trim();
+    const client = document.getElementById('obClientName')?.value.trim();
+    if(name){ Agency.save({...Agency.get(), name, client:client||''}); updateAgencyPill(); }
+  } else if(step.content === 'apikey'){
+    const key = document.getElementById('obApiKey')?.value.trim();
+    if(key){
+      const keyEl = document.getElementById('apiKey');
+      if(keyEl){ keyEl.value = key; keyEl.dispatchEvent(new Event('input')); }
+    }
+  }
+  _obStep++;
+  if(_obStep >= OB_STEPS.length){ completeOnboarding(); }
+  else { renderObStep(); }
+}
+
+function completeOnboarding(){
+  localStorage.setItem('onboardingDone','1');
+  document.getElementById('obOverlay').classList.remove('on');
+  if(_obSelectedTpl){
+    const tpl = TEMPLATES.find(t=>t.id===_obSelectedTpl);
+    if(tpl) loadTemplate(tpl);
+  }
+  toast('🎉 All set! Run your first brief.');
+}
+
+function skipOnboarding(){
+  localStorage.setItem('onboardingDone','1');
+  document.getElementById('obOverlay').classList.remove('on');
+}
+
+// ══════════════════════════════════════════════════════════════════
 //  BOOT
 // ══════════════════════════════════════════════════════════════════
 init();
+updateAgencyPill();
+initOnboarding();
 </script>
+
+<!-- CLIENT MODE OVERLAY -->
+<div id="clientOverlay" class="client-overlay">
+  <div class="co-header">
+    <div class="co-brand">
+      <div class="co-agency-name" id="coAgencyName">My Agency</div>
+      <div class="co-meta" id="coMeta">Client Deliverable</div>
+    </div>
+    <div class="co-header-right">
+      <button class="co-back" onclick="closeClientMode()">← Back to Workspace</button>
+      <button class="co-pdf-btn" onclick="clientPdf()">🖨️ Export PDF</button>
+    </div>
+  </div>
+  <div class="co-body">
+    <div class="co-mission-card">
+      <div class="co-mission-label">Brief</div>
+      <div class="co-mission-text" id="coMissionText"></div>
+    </div>
+    <div id="coAgentSections"></div>
+  </div>
+</div>
+
+<!-- AGENCY SETTINGS MODAL -->
+<div class="overlay" id="agencyModal" onclick="if(event.target===this)closeModal('agencyModal')">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-head"><h3>🏢 Agency Settings</h3><button class="modal-close" onclick="closeModal('agencyModal')">✕</button></div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--tx2);margin-bottom:18px;line-height:1.55">These details appear on client reports and the presentation view. Your clients will see your agency name on every deliverable.</p>
+      <div class="agency-form">
+        <div class="af-group">
+          <label class="af-label">Agency name</label>
+          <input class="af-input" id="agNameInput" placeholder="e.g. Apex Creative">
+        </div>
+        <div class="af-group">
+          <label class="af-label">Default client name</label>
+          <input class="af-input" id="agClientInput" placeholder="e.g. Athena Sportswear">
+        </div>
+        <div class="af-group">
+          <label class="af-label">Agency tagline <span style="font-weight:400;text-transform:none">(optional)</span></label>
+          <input class="af-input" id="agTaglineInput" placeholder="e.g. Strategy that moves markets">
+        </div>
+        <button class="af-save" onclick="saveAgencySettings()">Save Settings</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ONBOARDING OVERLAY -->
+<div id="obOverlay" class="ob-overlay">
+  <div class="ob-card">
+    <div id="obProgress" class="ob-progress"></div>
+    <div class="ob-title" id="obTitle"></div>
+    <p class="ob-sub" id="obSub"></p>
+    <div class="ob-content" id="obContent"></div>
+    <button class="ob-next" id="obNextBtn" onclick="nextObStep()">Next →</button>
+    <button class="ob-skip" onclick="skipOnboarding()">Skip setup</button>
+  </div>
+</div>
+
 </body>
 </html>

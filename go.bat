@@ -22,7 +22,7 @@ echo.
 echo Committing...
 git diff --cached --quiet
 if %errorlevel% neq 0 (
-    git commit -m "Performance + reliability + UX: speed mode, auto-retry, ETA, copy button, cost estimate"
+    git commit -m "Business-ready: marketing landing page, 6 marketing agents, client mode, agency settings, onboarding"
 ) else (
     echo Nothing new to commit.
 )
