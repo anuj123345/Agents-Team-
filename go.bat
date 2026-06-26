@@ -22,7 +22,7 @@ echo.
 echo Committing...
 git diff --cached --quiet
 if %errorlevel% neq 0 (
-    git commit -m "Agent Teams UI - chat, PDF export, refinement, proxy server"
+    git commit -m "Performance + reliability + UX: speed mode, auto-retry, ETA, copy button, cost estimate"
 ) else (
     echo Nothing new to commit.
 )
