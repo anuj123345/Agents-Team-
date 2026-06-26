@@ -728,6 +728,7 @@ body.light .think-body{color:rgba(139,92,246,.8);}
           <button class="out-btn" onclick="doSearch('');document.getElementById('searchBar').classList.toggle('on')">🔍 Search</button>
           <button class="out-btn" onclick="exportMd()">📄 Markdown</button>
           <button class="out-btn" onclick="exportPdf()">🖨️ PDF</button>
+          <button class="out-btn" style="border-color:rgba(129,140,248,.3);color:var(--ind)" onclick="openCalendar()" title="Open content calendar">📅 Calendar</button>
           <button class="out-btn" onclick="openShareModal()">🔗 Share</button>
           <button class="out-btn em-btn" onclick="copyOutput()">Copy</button>
         </div>
@@ -985,6 +986,65 @@ body.light .think-body{color:rgba(139,92,246,.8);}
 .ob-tpl-em{font-size:22px;display:block;margin-bottom:6px;}
 .ob-tpl-name{font-size:12.5px;font-weight:700;color:var(--tx);}
 .ob-tpl-desc{font-size:11px;color:var(--tx3);margin-top:2px;line-height:1.4;}
+
+/* ═══════════════════════════════════════════════════
+   CONTENT CALENDAR
+═══════════════════════════════════════════════════ */
+.cal-overlay{position:fixed;inset:0;z-index:490;background:var(--bg);overflow-y:auto;display:none;}
+.cal-overlay.on{display:block;animation:coFade .25s ease;}
+.cal-header{padding:14px 28px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(4,4,18,.78);backdrop-filter:blur(32px);position:sticky;top:0;z-index:10;}
+.cal-brand-name{font-size:16px;font-weight:800;background:linear-gradient(115deg,#f0f0fa,#c4b5fd 55%,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.3px;}
+.cal-brand-meta{font-size:11.5px;color:var(--tx3);}
+.cal-week-nav{display:flex;gap:4px;border:1px solid rgba(255,255,255,.1);border-radius:20px;overflow:hidden;padding:2px;background:rgba(255,255,255,.04);flex-shrink:0;}
+.cal-wk-btn{padding:5px 14px;border-radius:16px;border:none;background:transparent;color:var(--tx3);font-size:12px;cursor:pointer;transition:all .18s;font-family:inherit;white-space:nowrap;}
+.cal-wk-btn.active,.cal-wk-btn:hover{background:rgba(129,140,248,.18);color:var(--ind);}
+.cal-wk-btn.active{background:rgba(129,140,248,.22);color:var(--ind);font-weight:600;}
+.cal-hdr-actions{display:flex;gap:8px;align-items:center;margin-left:auto;flex-wrap:wrap;}
+.cal-parse-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;background:linear-gradient(135deg,rgba(129,140,248,.18),rgba(167,139,250,.12));border:1px solid rgba(129,140,248,.35);color:var(--ind);font-size:12.5px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;}
+.cal-parse-btn:hover{background:rgba(129,140,248,.25);box-shadow:0 0 16px rgba(129,140,248,.2);}
+.cal-parse-btn:disabled{opacity:.5;cursor:not-allowed;}
+.cal-icon-btn{display:flex;align-items:center;gap:5px;padding:7px 13px;border-radius:8px;border:1px solid rgba(255,255,255,.11);background:rgba(255,255,255,.05);color:var(--tx2);font-size:12.5px;cursor:pointer;transition:all .18s;font-family:inherit;white-space:nowrap;}
+.cal-icon-btn:hover{border-color:rgba(255,255,255,.22);color:var(--tx);background:rgba(255,255,255,.09);}
+
+/* Grid */
+.cal-body{padding:24px 28px;overflow-x:auto;}
+.cal-grid{min-width:700px;}
+.cal-header-row{display:grid;gap:1px;margin-bottom:1px;}
+.cal-row{display:grid;gap:1px;margin-bottom:1px;}
+.cal-cell{padding:10px 12px;min-height:44px;background:rgba(255,255,255,.03);border-radius:8px;}
+.cal-cell-head{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--tx3);display:flex;align-items:center;padding:8px 12px;min-height:36px;}
+.cal-platform-col{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--tx2);font-weight:500;}
+.cal-platform-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.cal-content-cell{display:flex;flex-direction:column;gap:5px;min-height:64px;cursor:default;transition:background .15s;}
+.cal-content-cell:hover{background:rgba(255,255,255,.05);}
+
+/* Cards */
+.cal-card{background:rgba(255,255,255,.055);border-left:3px solid transparent;border-radius:6px;padding:7px 9px;position:relative;cursor:default;transition:background .15s;overflow:hidden;}
+.cal-card:hover{background:rgba(255,255,255,.08);}
+.cal-card-type{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--tx3);margin-bottom:3px;}
+.cal-card-title{font-size:12px;color:var(--tx);line-height:1.4;font-weight:500;}
+.cal-card-del{position:absolute;top:4px;right:4px;width:16px;height:16px;background:none;border:none;cursor:pointer;color:var(--tx3);font-size:11px;display:none;align-items:center;justify-content:center;border-radius:3px;padding:0;transition:all .15s;font-family:inherit;}
+.cal-card:hover .cal-card-del{display:flex;}
+.cal-card-del:hover{color:var(--ros);background:rgba(251,113,133,.12);}
+.cal-add-btn{background:transparent;border:1px dashed rgba(255,255,255,.1);border-radius:5px;color:var(--tx3);font-size:16px;cursor:pointer;padding:2px 8px;transition:all .15s;align-self:flex-start;line-height:1.4;font-family:inherit;}
+.cal-add-btn:hover{border-color:rgba(129,140,248,.35);color:var(--ind);background:rgba(129,140,248,.06);}
+
+/* Empty state */
+.cal-empty{text-align:center;padding:80px 24px;color:var(--tx3);}
+.cal-empty-icon{font-size:52px;margin-bottom:16px;}
+.cal-empty-title{font-size:16px;font-weight:600;color:var(--tx2);margin-bottom:8px;}
+.cal-empty-sub{font-size:13px;line-height:1.6;max-width:380px;margin:0 auto;}
+
+/* Legend strip */
+.cal-legend{display:flex;align-items:center;gap:16px;padding:12px 28px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.06);}
+.cal-legend-label{font-size:11px;color:var(--tx3);text-transform:uppercase;letter-spacing:.6px;font-weight:600;flex-shrink:0;}
+.cal-legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--tx2);}
+.cal-legend-dot{width:8px;height:8px;border-radius:50%;}
+
+/* Add item modal extras */
+.cal-day-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.cal-day-btn{padding:6px;border-radius:7px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--tx2);font-size:12px;cursor:pointer;text-align:center;transition:all .15s;font-family:inherit;}
+.cal-day-btn.sel,.cal-day-btn:hover{border-color:rgba(129,140,248,.4);background:rgba(129,140,248,.1);color:var(--ind);}
 </style>
 
 <script>
@@ -2597,6 +2657,231 @@ document.addEventListener('keydown',e=>{
 });
 
 // ══════════════════════════════════════════════════════════════════
+//  CONTENT CALENDAR
+// ══════════════════════════════════════════════════════════════════
+const PLATFORM_COLORS = {
+  instagram:'#fb7185', linkedin:'#60a5fa', blog:'#34d399', website:'#34d399',
+  email:'#fbbf24', newsletter:'#fbbf24', youtube:'#f87171', tiktok:'#22d3ee',
+  twitter:'#e2e8f0', 'x':'#e2e8f0', facebook:'#a78bfa', pinterest:'#f472b6', other:'#94a3b8',
+};
+const PLATFORM_EMOJIS = {
+  instagram:'📸', linkedin:'💼', blog:'📝', website:'🌐', email:'📧',
+  newsletter:'📧', youtube:'▶️', tiktok:'🎵', twitter:'🐦', 'x':'🐦',
+  facebook:'👥', pinterest:'📌',
+};
+function calPlatformColor(p){ const k=(p||'').toLowerCase(); for(const [n,v] of Object.entries(PLATFORM_COLORS)){ if(k.includes(n)) return v; } return '#94a3b8'; }
+function calPlatformEmoji(p){ const k=(p||'').toLowerCase(); for(const [n,v] of Object.entries(PLATFORM_EMOJIS)){ if(k.includes(n)) return v; } return '📣'; }
+
+let CAL_ITEMS = (()=>{ try{ return JSON.parse(localStorage.getItem('calItems'))||[]; }catch{ return []; }})();
+let calBlock = 1; // which 4-week block: 1=wk1-4, 2=wk5-8, 3=wk9-12
+let calParseBusy = false;
+let calAddDay = 'Flexible';
+
+function saveCalItems(){ localStorage.setItem('calItems', JSON.stringify(CAL_ITEMS)); }
+
+function openCalendar(){
+  renderCalendar();
+  document.getElementById('calOverlay').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function closeCalendar(){
+  document.getElementById('calOverlay').classList.remove('on');
+  document.body.style.overflow='';
+}
+
+function setCalBlock(n){ calBlock=n; renderCalendar(); }
+
+function renderCalendar(){
+  const ag = Agency.get();
+  document.getElementById('calBrandName').textContent = ag.name||'My Agency';
+  document.getElementById('calBrandMeta').textContent = ag.client ? `Content Calendar · ${ag.client}` : 'Content Calendar';
+
+  // Block buttons
+  [1,2,3].forEach(n=>{
+    const btn=document.getElementById(`calBlk${n}`);
+    if(btn) btn.className='cal-wk-btn'+(calBlock===n?' active':'');
+  });
+
+  const start=(calBlock-1)*4+1;
+  const weeks=[start,start+1,start+2,start+3];
+
+  // Build legend and platform list
+  const platforms=[...new Set(CAL_ITEMS.map(i=>i.platform).filter(Boolean))];
+  const legend=document.getElementById('calLegend');
+  legend.innerHTML='<span class="cal-legend-label">Channels:</span>'+
+    (platforms.length ? platforms.map(p=>`<span class="cal-legend-item"><span class="cal-legend-dot" style="background:${calPlatformColor(p)}"></span>${calPlatformEmoji(p)} ${p}</span>`).join('') : '<span style="font-size:12px;color:var(--tx3)">None yet — parse your strategy or add items manually</span>');
+
+  const grid=document.getElementById('calGrid');
+  if(!platforms.length){
+    grid.innerHTML=`<div class="cal-empty"><div class="cal-empty-icon">📅</div><div class="cal-empty-title">No content scheduled yet</div><div class="cal-empty-sub">Run the Content Strategist agent, then click <strong style="color:var(--ind)">✨ Parse from Strategy</strong> to auto-populate the calendar. Or add items manually.</div></div>`;
+    return;
+  }
+
+  // Column widths: platform col + 4 week cols
+  const colTemplate = `180px repeat(4,1fr)`;
+
+  // Header row
+  let html=`<div class="cal-header-row" style="display:grid;grid-template-columns:${colTemplate};gap:6px;margin-bottom:6px;">
+    <div class="cal-cell-head"></div>
+    ${weeks.map(w=>`<div class="cal-cell-head">Week ${w}</div>`).join('')}
+  </div>`;
+
+  // Platform rows
+  platforms.forEach(platform=>{
+    const color=calPlatformColor(platform);
+    const emoji=calPlatformEmoji(platform);
+    html+=`<div class="cal-row" style="display:grid;grid-template-columns:${colTemplate};gap:6px;margin-bottom:6px;">
+      <div class="cal-cell cal-platform-col">
+        <span class="cal-platform-dot" style="background:${color}"></span>
+        ${emoji} ${platform}
+      </div>`;
+    weeks.forEach(w=>{
+      const items=CAL_ITEMS.filter(i=>i.week===w&&i.platform===platform);
+      html+=`<div class="cal-cell cal-content-cell">`;
+      items.forEach(item=>{
+        html+=`<div class="cal-card" style="border-left-color:${color}" title="${(item.desc||'').replace(/"/g,"'")}">
+          <div class="cal-card-type">${item.day||''} ${item.type||'Post'}</div>
+          <div class="cal-card-title">${item.title||''}</div>
+          <button class="cal-card-del" onclick="deleteCalItem('${item.id}')" title="Remove">✕</button>
+        </div>`;
+      });
+      html+=`<button class="cal-add-btn" onclick="openAddCalItem(${w},'${platform.replace(/'/g,"\\'")}')" title="Add item">+</button>`;
+      html+=`</div>`;
+    });
+    html+=`</div>`;
+  });
+
+  grid.innerHTML=html;
+}
+
+async function parseCalendarFromStrategy(){
+  // Find content strategy output (Content Strategist = devil, fallback to writer)
+  const stratContent = APP.results?.devil || APP.results?.writer || '';
+  const apiKey = document.getElementById('apiKey')?.value.trim();
+  const cfg = Store.settings();
+  const model = cfg.model || 'meta/llama-3.3-70b-instruct'; // use fast model for parsing
+
+  if(!stratContent){ toast('Run the Content Strategist agent first','err'); return; }
+  if(!apiKey){ toast('API key required','err'); return; }
+  if(calParseBusy) return;
+
+  calParseBusy=true;
+  const btn=document.getElementById('calParseBtn');
+  if(btn){ btn.textContent='⏳ Parsing…'; btn.disabled=true; }
+
+  try{
+    let parsed='';
+    const mission = document.getElementById('mission')?.value||'';
+
+    const prompt=`You are a content calendar assistant. Extract all specific content items from the content strategy below and return them as a JSON array.
+
+For each content piece, return an object with EXACTLY these fields:
+- "id": unique string like "c1", "c2", etc.
+- "week": integer 1-12 (distribute sensibly; start from week 1)
+- "day": string — one of: "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Flexible"
+- "platform": exact platform name string (e.g. "Instagram", "LinkedIn", "Blog", "Email Newsletter", "YouTube", "TikTok")
+- "type": content format string (e.g. "Reel", "Carousel", "Post", "Article", "Email", "Story", "Video", "Thread", "Newsletter")
+- "title": specific, actionable content title or topic (not generic — be concrete)
+- "desc": one sentence describing the goal or angle of this content
+- "status": "planned"
+
+Rules:
+- Extract AT LEAST 10 items and spread them across weeks 1-8
+- If the strategy mentions a 90-day calendar, map months to weeks (Month 1 = weeks 1-4, Month 2 = weeks 5-8, Month 3 = weeks 9-12)
+- Specific content ideas are more valuable than generic ones
+- Return ONLY the JSON array — no markdown, no code blocks, no explanation
+
+Content Strategy:
+${stratContent.slice(0,3500)}`;
+
+    await streamCall(apiKey, model,
+      [{role:'user', content:prompt}],
+      false, new AbortController().signal,
+      ()=>{},
+      (chunk)=>{ parsed+=chunk; },
+      1800
+    );
+
+    // Extract JSON array from response
+    const jsonMatch = parsed.match(/\[[\s\S]*\]/);
+    if(!jsonMatch) throw new Error('No JSON array in response');
+    const items = JSON.parse(jsonMatch[0]);
+    if(!Array.isArray(items)||!items.length) throw new Error('Empty result');
+
+    // Remove old parsed items, add new
+    CAL_ITEMS = [...CAL_ITEMS.filter(i=>i.source==='manual'), ...items.map(i=>({...i,source:'parsed'}))];
+    saveCalItems();
+    renderCalendar();
+    toast(`📅 Added ${items.length} items to calendar`);
+
+  }catch(e){
+    console.error('Calendar parse error:',e);
+    toast('Parse failed — check the Content Strategist ran successfully','err');
+  }finally{
+    calParseBusy=false;
+    if(btn){ btn.textContent='✨ Parse from Strategy'; btn.disabled=false; }
+  }
+}
+
+function deleteCalItem(id){
+  CAL_ITEMS=CAL_ITEMS.filter(i=>i.id!==id);
+  saveCalItems();
+  renderCalendar();
+}
+
+function openAddCalItem(week, platform){
+  calAddDay='Flexible';
+  document.getElementById('calAddWeekInp').value=week||1;
+  document.getElementById('calAddPlatInp').value=platform||'';
+  document.getElementById('calAddTypeInp').value='';
+  document.getElementById('calAddTitleInp').value='';
+  document.getElementById('calAddDescInp').value='';
+  // Reset day selection
+  document.querySelectorAll('.cal-day-btn').forEach(b=>{b.classList.remove('sel'); if(b.dataset.day==='Flexible')b.classList.add('sel');});
+  openModal('calAddModal');
+}
+
+function selectCalDay(btn, day){
+  document.querySelectorAll('.cal-day-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  calAddDay=day;
+}
+
+function saveCalItem(){
+  const title=document.getElementById('calAddTitleInp').value.trim();
+  if(!title){ toast('Enter a content title','err'); return; }
+  const item={
+    id:`m_${Date.now()}`,
+    week:parseInt(document.getElementById('calAddWeekInp').value)||1,
+    day:calAddDay||'Flexible',
+    platform:document.getElementById('calAddPlatInp').value.trim()||'Other',
+    type:document.getElementById('calAddTypeInp').value.trim()||'Post',
+    title,
+    desc:document.getElementById('calAddDescInp').value.trim(),
+    status:'planned',
+    source:'manual',
+  };
+  CAL_ITEMS.push(item);
+  saveCalItems();
+  closeModal('calAddModal');
+  renderCalendar();
+  toast('Content item added ✓');
+}
+
+function clearCalendar(){
+  if(!confirm('Clear all calendar items? This cannot be undone.')) return;
+  CAL_ITEMS=[];
+  saveCalItems();
+  renderCalendar();
+}
+
+function exportCalPdf(){
+  // Export via existing PDF function — temporary approach
+  closeCalendar();
+  setTimeout(()=>{ window.print(); setTimeout(()=>openCalendar(),600); },200);
+}
+
+// ══════════════════════════════════════════════════════════════════
 //  AGENCY SETTINGS
 // ══════════════════════════════════════════════════════════════════
 const Agency = {
@@ -2819,6 +3104,82 @@ init();
 updateAgencyPill();
 initOnboarding();
 </script>
+
+<!-- CONTENT CALENDAR OVERLAY -->
+<div id="calOverlay" class="cal-overlay">
+  <!-- Header -->
+  <div class="cal-header">
+    <div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;">
+      <div class="cal-brand-name" id="calBrandName">My Agency</div>
+      <div class="cal-brand-meta" id="calBrandMeta">Content Calendar</div>
+    </div>
+    <div class="cal-week-nav">
+      <button id="calBlk1" class="cal-wk-btn active" onclick="setCalBlock(1)">Weeks 1–4</button>
+      <button id="calBlk2" class="cal-wk-btn" onclick="setCalBlock(2)">Weeks 5–8</button>
+      <button id="calBlk3" class="cal-wk-btn" onclick="setCalBlock(3)">Weeks 9–12</button>
+    </div>
+    <div class="cal-hdr-actions">
+      <button id="calParseBtn" class="cal-parse-btn" onclick="parseCalendarFromStrategy()">✨ Parse from Strategy</button>
+      <button class="cal-icon-btn" onclick="openAddCalItem()">+ Add Item</button>
+      <button class="cal-icon-btn" onclick="clearCalendar()">🗑 Clear</button>
+      <button class="cal-icon-btn" onclick="exportCalPdf()">🖨️ Export</button>
+      <button class="cal-icon-btn" onclick="closeCalendar()">← Close</button>
+    </div>
+  </div>
+  <!-- Legend -->
+  <div class="cal-legend" id="calLegend"></div>
+  <!-- Grid -->
+  <div class="cal-body">
+    <div id="calGrid"></div>
+  </div>
+</div>
+
+<!-- ADD CALENDAR ITEM MODAL -->
+<div class="overlay" id="calAddModal" onclick="if(event.target===this)closeModal('calAddModal')">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-head"><h3>📅 Add Content Item</h3><button class="modal-close" onclick="closeModal('calAddModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="agency-form">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="af-group">
+            <label class="af-label">Week</label>
+            <input class="af-input" id="calAddWeekInp" type="number" min="1" max="12" placeholder="1–12" value="1">
+          </div>
+          <div class="af-group">
+            <label class="af-label">Platform</label>
+            <input class="af-input" id="calAddPlatInp" placeholder="e.g. Instagram">
+          </div>
+        </div>
+        <div class="af-group">
+          <label class="af-label">Content Type</label>
+          <input class="af-input" id="calAddTypeInp" placeholder="e.g. Reel, Post, Blog, Email, Story…">
+        </div>
+        <div class="af-group">
+          <label class="af-label">Title / Topic</label>
+          <input class="af-input" id="calAddTitleInp" placeholder="Specific, actionable title">
+        </div>
+        <div class="af-group">
+          <label class="af-label">Description <span style="font-weight:400;text-transform:none">(optional)</span></label>
+          <input class="af-input" id="calAddDescInp" placeholder="What should this content achieve?">
+        </div>
+        <div class="af-group">
+          <label class="af-label">Day</label>
+          <div class="cal-day-grid">
+            <button class="cal-day-btn" data-day="Monday" onclick="selectCalDay(this,'Monday')">Mon</button>
+            <button class="cal-day-btn" data-day="Tuesday" onclick="selectCalDay(this,'Tuesday')">Tue</button>
+            <button class="cal-day-btn" data-day="Wednesday" onclick="selectCalDay(this,'Wednesday')">Wed</button>
+            <button class="cal-day-btn" data-day="Thursday" onclick="selectCalDay(this,'Thursday')">Thu</button>
+            <button class="cal-day-btn" data-day="Friday" onclick="selectCalDay(this,'Friday')">Fri</button>
+            <button class="cal-day-btn" data-day="Saturday" onclick="selectCalDay(this,'Saturday')">Sat</button>
+            <button class="cal-day-btn" data-day="Sunday" onclick="selectCalDay(this,'Sunday')">Sun</button>
+            <button class="cal-day-btn sel" data-day="Flexible" onclick="selectCalDay(this,'Flexible')">Flexible</button>
+          </div>
+        </div>
+        <button class="af-save" onclick="saveCalItem()">Add to Calendar</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- CLIENT MODE OVERLAY -->
 <div id="clientOverlay" class="client-overlay">

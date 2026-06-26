@@ -35,7 +35,7 @@ class ProxyHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         path = self.path.split("?")[0]
         if path == "/" or path == "":
-            path = "/agent-teams-ui.html"
+            path = "/index.html"
 
         file_path = os.path.join(DIR, path.lstrip("/"))
         if os.path.isfile(file_path):
@@ -120,7 +120,8 @@ class ProxyHandler(http.server.BaseHTTPRequestHandler):
 if __name__ == "__main__":
     os.chdir(DIR)
     server = http.server.HTTPServer(("", PORT), ProxyHandler)
-    print(f"\n  Agent Teams UI  →  http://localhost:{PORT}/agent-teams-ui.html")
+    print(f"\n  Landing Page    →  http://localhost:{PORT}/")
+    print(f"  Platform        →  http://localhost:{PORT}/agent-teams-ui.html")
     print(f"  API proxy       →  /api/chat  →  {NVIDIA_URL}")
     print(f"  Press Ctrl+C to stop\n")
     try:

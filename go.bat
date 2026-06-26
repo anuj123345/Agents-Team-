@@ -22,7 +22,7 @@ echo.
 echo Committing...
 git diff --cached --quiet
 if %errorlevel% neq 0 (
-    git commit -m "Business-ready: marketing landing page, 6 marketing agents, client mode, agency settings, onboarding"
+    git commit -m "Content calendar: AI-powered 12-week calendar with parse from strategy, add/delete items, platform color coding"
 ) else (
     echo Nothing new to commit.
 )
