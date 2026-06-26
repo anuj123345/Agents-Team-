@@ -2683,6 +2683,12 @@ function openCalendar(){
   renderCalendar();
   document.getElementById('calOverlay').classList.add('on');
   document.body.style.overflow='hidden';
+  // Auto-parse if Content Strategist ran and calendar has no parsed items yet
+  const hasStrategy = !!(APP.results?.devil || APP.results?.writer);
+  const hasParsed = CAL_ITEMS.some(i=>i.source==='parsed');
+  if(hasStrategy && !hasParsed){
+    setTimeout(()=>parseCalendarFromStrategy(), 400);
+  }
 }
 function closeCalendar(){
   document.getElementById('calOverlay').classList.remove('on');

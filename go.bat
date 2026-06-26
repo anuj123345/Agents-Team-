@@ -22,7 +22,7 @@ echo.
 echo Committing...
 git diff --cached --quiet
 if %errorlevel% neq 0 (
-    git commit -m "Content calendar: AI-powered 12-week calendar with parse from strategy, add/delete items, platform color coding"
+    git commit -m "Fix: auto-parse Content Strategist output when calendar opens with no items"
 ) else (
     echo Nothing new to commit.
 )
