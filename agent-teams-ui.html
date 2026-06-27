@@ -1019,13 +1019,21 @@ body.light .think-body{color:rgba(139,92,246,.8);}
 .cal-content-cell:hover{background:rgba(255,255,255,.05);}
 
 /* Cards */
-.cal-card{background:rgba(255,255,255,.055);border-left:3px solid transparent;border-radius:6px;padding:7px 9px;position:relative;cursor:default;transition:background .15s;overflow:hidden;}
-.cal-card:hover{background:rgba(255,255,255,.08);}
+.cal-card{background:rgba(255,255,255,.055);border-left:3px solid transparent;border-radius:6px;padding:7px 9px;position:relative;cursor:pointer;transition:background .15s;overflow:hidden;}
+.cal-card:hover{background:rgba(255,255,255,.1);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.3);}
+.cal-card-date{font-size:10px;color:var(--tx3);margin-bottom:2px;font-weight:500;}
 .cal-card-type{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--tx3);margin-bottom:3px;}
 .cal-card-title{font-size:12px;color:var(--tx);line-height:1.4;font-weight:500;}
-.cal-card-del{position:absolute;top:4px;right:4px;width:16px;height:16px;background:none;border:none;cursor:pointer;color:var(--tx3);font-size:11px;display:none;align-items:center;justify-content:center;border-radius:3px;padding:0;transition:all .15s;font-family:inherit;}
+.cal-card-del{position:absolute;top:4px;right:4px;width:16px;height:16px;background:none;border:none;cursor:pointer;color:var(--tx3);font-size:11px;display:none;align-items:center;justify-content:center;border-radius:3px;padding:0;transition:all .15s;font-family:inherit;z-index:2;}
 .cal-card:hover .cal-card-del{display:flex;}
 .cal-card-del:hover{color:var(--ros);background:rgba(251,113,133,.12);}
+.cal-cell-head{font-size:11px;font-weight:600;color:var(--tx3);padding:6px 8px;letter-spacing:.3px;line-height:1.4;}
+.cal-detail-modal .modal{max-width:500px;}
+.cal-detail-title{font-size:19px;font-weight:700;color:var(--tx);margin-bottom:6px;line-height:1.4;}
+.cal-detail-meta{font-size:13px;color:var(--tx2);margin-bottom:20px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.cal-detail-badge{padding:3px 9px;border-radius:20px;font-size:12px;font-weight:600;background:rgba(255,255,255,.08);}
+.cal-detail-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--tx3);margin-bottom:6px;}
+.cal-detail-body{font-size:14px;color:var(--tx2);line-height:1.7;background:var(--s1);border:1px solid var(--glass-border);border-radius:10px;padding:14px;min-height:60px;}
 .cal-add-btn{background:transparent;border:1px dashed rgba(255,255,255,.1);border-radius:5px;color:var(--tx3);font-size:16px;cursor:pointer;padding:2px 8px;transition:all .15s;align-self:flex-start;line-height:1.4;font-family:inherit;}
 .cal-add-btn:hover{border-color:rgba(129,140,248,.35);color:var(--ind);background:rgba(129,140,248,.06);}
 
@@ -2726,10 +2734,14 @@ function renderCalendar(){
   // Column widths: platform col + 4 week cols
   const colTemplate = `180px repeat(4,1fr)`;
 
+  // Sync date picker
+  const startInp=document.getElementById('calStartInp');
+  if(startInp) startInp.value=getCalStartDate().toISOString().slice(0,10);
+
   // Header row
   let html=`<div class="cal-header-row" style="display:grid;grid-template-columns:${colTemplate};gap:6px;margin-bottom:6px;">
     <div class="cal-cell-head"></div>
-    ${weeks.map(w=>`<div class="cal-cell-head">Week ${w}</div>`).join('')}
+    ${weeks.map(w=>`<div class="cal-cell-head">${getWeekLabel(w)}</div>`).join('')}
   </div>`;
 
   // Platform rows
@@ -2745,10 +2757,12 @@ function renderCalendar(){
       const items=CAL_ITEMS.filter(i=>i.week===w&&i.platform===platform);
       html+=`<div class="cal-cell cal-content-cell">`;
       items.forEach(item=>{
-        html+=`<div class="cal-card" style="border-left-color:${color}" title="${(item.desc||'').replace(/"/g,"'")}">
-          <div class="cal-card-type">${item.day||''} ${item.type||'Post'}</div>
+        const itemDateStr=fmtItemDate(item);
+        html+=`<div class="cal-card" style="border-left-color:${color}" onclick="openCalDetail('${item.id}')">
+          <div class="cal-card-date">${itemDateStr}</div>
+          <div class="cal-card-type">${item.type||'Post'}</div>
           <div class="cal-card-title">${item.title||''}</div>
-          <button class="cal-card-del" onclick="deleteCalItem('${item.id}')" title="Remove">✕</button>
+          <button class="cal-card-del" onclick="event.stopPropagation();deleteCalItem('${item.id}')" title="Remove">✕</button>
         </div>`;
       });
       html+=`<button class="cal-add-btn" onclick="openAddCalItem(${w},'${platform.replace(/'/g,"\\'")}')" title="Add item">+</button>`;
@@ -2882,9 +2896,67 @@ function clearCalendar(){
 }
 
 function exportCalPdf(){
-  // Export via existing PDF function — temporary approach
   closeCalendar();
   setTimeout(()=>{ window.print(); setTimeout(()=>openCalendar(),600); },200);
+}
+
+// ── Calendar date helpers ──────────────────────────────────────────
+const DAY_OFFSET = {Monday:0,Tuesday:1,Wednesday:2,Thursday:3,Friday:4,Saturday:5,Sunday:6};
+
+function getCalStartDate(){
+  const stored = localStorage.getItem('calStartDate');
+  if(stored){ const d=new Date(stored+' 00:00:00'); if(!isNaN(d)) return d; }
+  // Default: next Monday
+  const d=new Date(); const dow=d.getDay();
+  const diff = dow===0?1:(8-dow)%7||7;
+  d.setDate(d.getDate()+diff); d.setHours(0,0,0,0); return d;
+}
+
+function setCalStartDate(val){ localStorage.setItem('calStartDate',val); renderCalendar(); }
+
+function getWeekStart(weekNum){
+  const d=new Date(getCalStartDate());
+  d.setDate(d.getDate()+(weekNum-1)*7); return d;
+}
+
+function fmtShort(d){ return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+
+function getWeekLabel(weekNum){
+  const ws=getWeekStart(weekNum);
+  const we=new Date(ws); we.setDate(we.getDate()+6);
+  return `Week ${weekNum}<br><span style="font-weight:400;font-size:10px;color:var(--tx3)">${fmtShort(ws)}–${fmtShort(we)}</span>`;
+}
+
+function getItemDate(item){
+  if(!item.day||item.day==='Flexible') return null;
+  const offset=DAY_OFFSET[item.day];
+  if(offset===undefined) return null;
+  const d=getWeekStart(item.week); d.setDate(d.getDate()+offset); return d;
+}
+
+function fmtItemDate(item){
+  const d=getItemDate(item);
+  if(!d) return item.day||'Flexible';
+  return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+}
+
+function openCalDetail(id){
+  const item=CAL_ITEMS.find(i=>i.id===id);
+  if(!item) return;
+  const color=calPlatformColor(item.platform);
+  const emoji=calPlatformEmoji(item.platform);
+  const d=getItemDate(item);
+  const dateStr=d ? d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}) : `Week ${item.week} · ${item.day||'Flexible'}`;
+
+  document.getElementById('calDetailTitle').textContent=item.title||'Untitled';
+  document.getElementById('calDetailDate').textContent='📅 '+dateStr;
+  document.getElementById('calDetailPlatform').innerHTML=`${emoji} ${item.platform||'—'}`;
+  document.getElementById('calDetailPlatform').style.color=color;
+  document.getElementById('calDetailType').textContent=item.type||'Post';
+  document.getElementById('calDetailStatus').textContent=(item.status||'planned').charAt(0).toUpperCase()+(item.status||'planned').slice(1);
+  document.getElementById('calDetailDesc').textContent=item.desc||'No description provided.';
+  document.getElementById('calDetailDelBtn').onclick=()=>{ deleteCalItem(id); closeModal('calDetailModal'); };
+  openModal('calDetailModal');
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -3123,6 +3195,10 @@ initOnboarding();
       <button id="calBlk1" class="cal-wk-btn active" onclick="setCalBlock(1)">Weeks 1–4</button>
       <button id="calBlk2" class="cal-wk-btn" onclick="setCalBlock(2)">Weeks 5–8</button>
       <button id="calBlk3" class="cal-wk-btn" onclick="setCalBlock(3)">Weeks 9–12</button>
+      <div style="display:flex;align-items:center;gap:6px;margin-left:8px;padding-left:8px;border-left:1px solid var(--b1)">
+        <span style="font-size:11px;color:var(--tx3);white-space:nowrap">Start:</span>
+        <input type="date" id="calStartInp" style="background:var(--s1);border:1px solid var(--glass-border);color:var(--tx);border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;outline:none" onchange="setCalStartDate(this.value)">
+      </div>
     </div>
     <div class="cal-hdr-actions">
       <button id="calParseBtn" class="cal-parse-btn" onclick="parseCalendarFromStrategy()">✨ Parse from Strategy</button>
@@ -3182,6 +3258,28 @@ initOnboarding();
           </div>
         </div>
         <button class="af-save" onclick="saveCalItem()">Add to Calendar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CALENDAR DETAIL MODAL -->
+<div class="overlay cal-detail-modal" id="calDetailModal" onclick="if(event.target===this)closeModal('calDetailModal')">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-head"><h3>📋 Content Detail</h3><button class="modal-close" onclick="closeModal('calDetailModal')">✕</button></div>
+    <div class="modal-body" style="padding:20px">
+      <div class="cal-detail-title" id="calDetailTitle"></div>
+      <div style="font-size:13px;color:var(--tx3);margin-bottom:14px" id="calDetailDate"></div>
+      <div class="cal-detail-meta">
+        <span class="cal-detail-badge" id="calDetailPlatform"></span>
+        <span class="cal-detail-badge" id="calDetailType"></span>
+        <span class="cal-detail-badge" style="background:rgba(129,140,248,.15);color:var(--ind)" id="calDetailStatus"></span>
+      </div>
+      <div class="cal-detail-label">Description</div>
+      <div class="cal-detail-body" id="calDetailDesc"></div>
+      <div style="display:flex;gap:8px;margin-top:20px">
+        <button id="calDetailDelBtn" style="flex:1;padding:10px;border-radius:8px;border:1px solid rgba(251,113,133,.3);background:rgba(251,113,133,.08);color:var(--ros);cursor:pointer;font-size:13px;font-weight:500;transition:all .15s" onmouseover="this.style.background='rgba(251,113,133,.15)'" onmouseout="this.style.background='rgba(251,113,133,.08)'">🗑 Remove Item</button>
+        <button onclick="closeModal('calDetailModal')" style="flex:2;padding:10px;border-radius:8px;border:1px solid var(--glass-border);background:var(--glass);color:var(--tx2);cursor:pointer;font-size:13px;font-weight:500;transition:all .15s" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background='var(--glass)'">Close</button>
       </div>
     </div>
   </div>
